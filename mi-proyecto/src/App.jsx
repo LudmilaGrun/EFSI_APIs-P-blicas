@@ -1,8 +1,14 @@
+// Importo funciones de React
 import { useState, useEffect } from "react";
+
+// Importo mi componente (tarjeta de Pokémon)
 import PokemonCard from "./components/PokemonCard";
+
+// Importo los estilos
 import "./App.css";
 
 function App() {
+//guarda la accion2par(menos los que dicen falso y nombre)
  const [pokemon, setPokemon] = useState(null);
  const [nombre, setNombre] = useState("");
  const [error, setError] = useState("");
@@ -15,6 +21,8 @@ function App() {
  const [tipoSeleccionado, setTipoSeleccionado] = useState("fire");
 
  const buscarPokemon = async () => {
+
+    // Validación: si no hay input(permite que el usuario escriba información, y con onChange guardo ese valor en el estado.):
    if (!nombre) {
      setError("Escribí algo");
      return;
@@ -23,51 +31,68 @@ function App() {
    setLoading(true);
    setError("");
 
-   try {
-     const res = await fetch(
-       `https://pokeapi.co/api/v2/pokemon/${nombre.toLowerCase()}`
-     );
+ try {
+      // fetch = función para pedir datos a una API
+      const res = await fetch(
+        `https://pokeapi.co/api/v2/pokemon/${nombre.toLowerCase()}`
+      );
 
-     if (!res.ok) {
-       throw new Error("No existe ese Pokémon");
-     }
+      // Si la respuesta no es válida → error
+      if (!res.ok) {
+        throw new Error("No existe ese Pokémon");
+      }
 
-     const data = await res.json();
-     setPokemon(data);
-   } catch (err) {
-     setError(err.message);
-     setPokemon(null);
-   } finally {
-     setTimeout(() => {
-       setLoading(false);
-     }, 1500);
-   }
- };
+      // Convierto la respuesta a JSON
+      const data = await res.json();
+
+      // Guardo el Pokémon en el estado
+      setPokemon(data);
+
+    } catch (err) {
+      // Si ocurre un error
+      setError(err.message);
+      setPokemon(null);
+
+    } finally {
+      // finally siempre se ejecuta
+      // simulo un pequeño tiempo de carga
+      setTimeout(() => {
+        setLoading(false);
+      }, 1500);
+    }
+  };
+
 
  const obtenerLista = async () => {
    setLoadingLista(true);
 
-   try {
-     const res = await fetch("https://pokeapi.co/api/v2/pokemon?limit=20");
-     const data = await res.json();
+try {
+      // Traigo lista básica (solo nombres y URLs)
+      const res = await fetch("https://pokeapi.co/api/v2/pokemon?limit=20");
+      const data = await res.json();
 
-     const detalles = await Promise.all(
-       data.results.map(async (p) => {
-         const res2 = await fetch(p.url);
-         return await res2.json();
-       })
-     );
+      // Promise.all = ejecuta muchas peticiones al mismo tiempo
+      const detalles = await Promise.all(
+        data.results.map(async (p) => {
+          const res2 = await fetch(p.url);
+          return await res2.json();
+        })
+      );
 
-     setLista(detalles);
-   } catch (error) {
-     console.log(error);
-   } finally {
-     setTimeout(() => {
-       setLoadingLista(false);
-     }, 1500);
-   }
- };
+      // Guardo todos los Pokémon con detalles
+      setLista(detalles);
 
+    } catch (error) {
+      console.log(error);
+
+    } finally {
+      setTimeout(() => {
+        setLoadingLista(false);
+      }, 1500);
+    }
+  };
+
+  //CODIGO AUTO1
  useEffect(() => {
    obtenerLista();
  }, []);
@@ -112,24 +137,32 @@ function App() {
 
      <div className="grid">
        {lista
-         .filter((p) => {
-           if (tipoFiltro === "nombre") return true;
-           return p.types.some(
-             (t) => t.type.name === tipoSeleccionado
-           );
-         })
-         .sort((a, b) => {
-           if (tipoFiltro === "nombre") {
-             return a.name.localeCompare(b.name);
-           }
-           return 0;
-         })
-         .map((p) => (
-           <PokemonCard key={p.id} data={p} />
-         ))}
-     </div>
-   </div>
- );
+
+       // FILTER = filtra elementos
+          .filter((p) => {
+            if (tipoFiltro === "nombre") return true;
+
+            // some = verifica si cumple condición
+            return p.types.some(
+              (t) => t.type.name === tipoSeleccionado
+            );
+          })
+
+          //  SORT = ordena los pokemons de la lista
+          .sort((a, b) => {
+            if (tipoFiltro === "nombre") {
+              return a.name.localeCompare(b.name);
+            }
+            return 0;
+          })
+
+          // 🧩 MAP = recorre y muestra en pantalla (con react)
+          .map((p) => (
+            <PokemonCard key={p.id} data={p} />
+          ))}
+      </div>
+    </div>
+  );
 }
 
 export default App;
