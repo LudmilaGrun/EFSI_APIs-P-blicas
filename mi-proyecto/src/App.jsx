@@ -53,6 +53,10 @@ function App() {
       setError(err.message);
       setPokemon(null);
 
+
+    
+      //CONCEPTO CHAT - LO ACLARO EN EL CAMPUS
+        //setTimeout 
     } finally {
       // finally siempre se ejecuta
       // simulo un pequeño tiempo de carga
@@ -71,7 +75,10 @@ try {
       const res = await fetch("https://pokeapi.co/api/v2/pokemon?limit=20");
       const data = await res.json();
 
+      // CONCEPTO CHAT - LO ACLARE EN EL CAMPUS
       // Promise.all = ejecuta muchas peticiones al mismo tiempo
+      //Lo que hace en este caso: “Toma los 20 Pokémon de la lista y 
+      // después trae todos sus detalles en paralelo para que cargue más rápido.”
       const detalles = await Promise.all(
         data.results.map(async (p) => {
           const res2 = await fetch(p.url);
@@ -142,7 +149,10 @@ try {
           .filter((p) => {
             if (tipoFiltro === "nombre") return true;
 
-            // some = verifica si cumple condición
+            // CONCEPTO CHAT - LO ACLARE EN EL CAMPUS
+            //some = verifica si cumple condición
+            //“Uso some() para verificar si el Pokémon tiene el tipo seleccionado,
+            // y así decidir si se muestra o no en la lista.”
             return p.types.some(
               (t) => t.type.name === tipoSeleccionado
             );
